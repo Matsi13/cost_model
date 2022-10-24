@@ -9,14 +9,17 @@ using namespace std;
 class PhysicalLayer{
 public :
     PhysicalLayer();
+    PhysicalLayer(int layerid, bool hasweight, int weightsizerow, int weightsizecol, string nonlinearfunc, list<int> inputlayerid, list<int> outputlayerid, list<CoreRange> cores);
     ~PhysicalLayer(){};
+    int layer_id;             // each layer has a unique id
+    bool has_weight;          // if false, this layer is just a non-linear function
     int weight_size_row;      // rows of weight     
     int weight_size_col;      // columns of weight
-    int layer_id;             // each layer has a unique id
     string non_linear_func;   // currently, support ReLU and tanh
+
     list<int> input_layer_id;
     list<int> output_layer_id;
-    bool has_weight;          // if false, this layer is just a non-linear function
+    
     list<CoreRange> cores;      // allocated cores
 
     // the varaibles below will be calculated by class DNN

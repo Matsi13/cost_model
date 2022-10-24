@@ -9,14 +9,21 @@ PhysicalLayer::PhysicalLayer(){
     layer_id = 1;
     non_linear_func = "ReLU";
     has_weight = true;
-    // input_onchip = true;
-    // output_onchip = false;
-    // chip_id = 0;
-    // core_left = 0;
-    // core_up = 0;
-    // core_right = 8;
-    // core_down = 4;
-    // input_layer_id = 0;
-    // output_layer_id = 2;
 }
 
+PhysicalLayer::PhysicalLayer(int layerid, bool hasweight, int weightsizerow, int weightsizecol, string nonlinearfunc, list<int> inputlayerid, list<int> outputlayerid, list<CoreRange> thecores){
+    layer_id = layerid;
+    has_weight = hasweight;
+    if (has_weight){
+        weight_size_row = weightsizerow;
+        weight_size_col = weightsizecol;
+    } else{
+        weight_size_row = 0;
+        weight_size_col = 0;
+    }
+    non_linear_func = nonlinearfunc;
+    input_layer_id = inputlayerid;
+    output_layer_id = outputlayerid;
+    cores = thecores;
+
+}
