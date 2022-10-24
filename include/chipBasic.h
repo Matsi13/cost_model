@@ -1,6 +1,6 @@
 #ifndef CHIPBASIC_H
 #define CHIPBASIC_H
-#endif
+
 
 class ChipBasic{
 public :
@@ -28,3 +28,6 @@ public :
 
 
 };
+
+
+#endif

@@ -1,6 +1,6 @@
 #ifndef LAYER_H
 #define LAYER_H
-#endif
+
 #include <string>
 #include <list>
 #include "chipBasic.h"
@@ -9,7 +9,7 @@ using namespace std;
 class PhysicalLayer{
 public :
     PhysicalLayer();
-    PhysicalLayer(int layerid, bool hasweight, int weightsizerow, int weightsizecol, string nonlinearfunc, list<int> inputlayerid, list<int> outputlayerid, list<CoreRange> cores);
+    PhysicalLayer(int layerid, bool hasweight, int weightsizerow, int weightsizecol, string nonlinearfunc, list<int> inputlayerid, list<int> outputlayerid, list<CoreRange> thecores);
     ~PhysicalLayer(){};
     int layer_id;             // each layer has a unique id
     bool has_weight;          // if false, this layer is just a non-linear function
@@ -41,3 +41,6 @@ public :
 
     
 };
+
+
+#endif

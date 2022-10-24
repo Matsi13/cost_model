@@ -1,0 +1,2 @@
+add_executable(layer_test layer_test.cpp)
+target_link_libraries(layer_test layer_lib)

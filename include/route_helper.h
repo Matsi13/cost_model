@@ -1,6 +1,6 @@
 #ifndef ROUTE_HELPER_H
 #define ROUTE_HELPER_H
-#endif
+
 
 struct CoreLoc{
     int chip_id;
@@ -15,3 +15,6 @@ struct CoreRange{
 };
 
 int core_dist(CoreLoc core1, CoreLoc core2);
+
+
+#endif
