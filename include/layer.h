@@ -9,18 +9,20 @@ using namespace std;
 class PhysicalLayer{
 public :
     PhysicalLayer();
-    PhysicalLayer(int layerid, bool hasweight, int weightsizerow, int weightsizecol, string nonlinearfunc, list<int> inputlayerid, list<int> outputlayerid, list<CoreRange> thecores);
+    PhysicalLayer(int layerid, bool hasweight, bool istrans, int weightsizerow, int weightsizecol, string nonlinearfunc, list<int> inputlayerid, list<int> outputlayerid, CoreRange thecores);
     ~PhysicalLayer(){};
-    int layer_id;             // each layer has a unique id
+    int layer_id;             // each layer has a unique id. Use layer id to index a layer in the vector. Start form 0.
     bool has_weight;          // if false, this layer is just a non-linear function
+    // TODO : what if a layer is upside dowm?
+    bool is_trans;            // if is_trans = false, matrix row is mapped to PE rows
     int weight_size_row;      // rows of weight     
     int weight_size_col;      // columns of weight
     string non_linear_func;   // currently, support ReLU and tanh
 
-    list<int> input_layer_id;
-    list<int> output_layer_id;
+    list<int> input_layers_id;
+    list<int> output_layers_id;
     
-    list<CoreRange> cores;      // allocated cores
+    CoreRange cores;      // allocated cores
 
     // the varaibles below will be calculated by class DNN
     float fw_input_time;

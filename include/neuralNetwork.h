@@ -1,16 +1,20 @@
 #ifndef NEURAL_NETWORK_H
 #define NEURAL_NETWORK_H
-#endif
+
 #include <vector>
 #include "layer.h"
 using namespace std;
 class NeuralNetwork{
 public :
-    NeuralNetwork();
+    NeuralNetwork(){};
     ~NeuralNetwork(){};
     vector<PhysicalLayer> layers;
     ChipBasic device;
-    float forward_input_time();
+
+    int insert_layer(PhysicalLayer newlayer);
+
+
+    float forward_input_time(int i); // layer i's time of getting forward input
     float forward_compute_time();
     float forward_reduce_time();
     float forward_non_linear_func_time();
@@ -25,3 +29,6 @@ public :
     float backward_reduce_time();
     float backward_weight_sync_time();
 };
+
+
+#endif

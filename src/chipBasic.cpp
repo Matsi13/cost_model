@@ -23,7 +23,7 @@ ChipBasic::ChipBasic(int locrow, int loccol, float bwnoc, int netlocrow, int net
 ChipBasic::ChipBasic(){
     loc_row = 0;
     loc_col = 0;
-    BW_NoC = 1.6e9;
+    BW_NoC = 192e9;
     net_loc_row = 0;
     net_loc_col = 0;
     BW_net = 400e9;

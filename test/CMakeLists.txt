@@ -1,2 +1,7 @@
 add_executable(layer_test layer_test.cpp)
 target_link_libraries(layer_test layer_lib)
+add_test(NAME layer_test COMMAND layer_test)
+
+add_executable(connection_point_test connection_point_test.cpp)
+target_link_libraries(connection_point_test layer_lib)
+add_test(NAME connection_point_test COMMAND connection_point_test)
