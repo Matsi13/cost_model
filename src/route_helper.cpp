@@ -29,82 +29,84 @@ bool find_connect_points(CoreRange corerange1, CoreRange corerange2, vector<Core
     int rightbound2 = leftbound2 + corerange2.cols - 1;
     int chip_id = corerange1.coreloc.chip_id;
     
-    if (upbound1 + 1 == downbound2){
+    if (upbound1 - 1 == downbound2){
         if (leftbound1 > rightbound2 || leftbound2 > rightbound1) return false;
         int left_loc = max(leftbound1, leftbound2);
         int right_loc = min(rightbound1, rightbound2);
 
-        CoreLoc coreloc1 = {chip_id, left_loc, upbound1};
-        CoreLoc coreloc2 = {chip_id, left_loc, downbound2};
-        connect_points[0] = coreloc1;
-        connect_points[1] = coreloc2;
+        CoreLoc coreloc1 = {chip_id, upbound1, left_loc};
+        CoreLoc coreloc2 = {chip_id, downbound2, left_loc};
+        connect_points.push_back(coreloc1);
+        connect_points.push_back(coreloc2);
 
-        // if (left_loc == right_loc ) return true; // only connect via one Noc
 
-        CoreLoc coreloc3 = {chip_id, right_loc, upbound1};
-        CoreLoc coreloc4 = {chip_id, right_loc, downbound2};
-        connect_points[2] = coreloc3;
-        connect_points[3] = coreloc4;
+        if (left_loc == right_loc ) return true; // only connect via one Noc
+
+        CoreLoc coreloc3 = {chip_id, upbound1, right_loc};
+        CoreLoc coreloc4 = {chip_id, downbound2, right_loc};
+        connect_points.push_back(coreloc3);
+        connect_points.push_back(coreloc4);
+
 
         return true;
     }
-    if (upbound2 + 1 == downbound1){
+    if (upbound2 - 1 == downbound1){
         if (leftbound2 > rightbound1 || leftbound1 > rightbound2) return false;
         int left_loc = max(leftbound1, leftbound2);
         int right_loc = min(rightbound1, rightbound2);
 
-        CoreLoc coreloc1 = {chip_id, left_loc, downbound1};
-        CoreLoc coreloc2 = {chip_id, left_loc, upbound2};
-        connect_points[0] = coreloc1;
-        connect_points[1] = coreloc2;
+        CoreLoc coreloc1 = {chip_id, downbound1, left_loc};
+        CoreLoc coreloc2 = {chip_id, upbound2, left_loc};
+        connect_points.push_back(coreloc1);
+        connect_points.push_back(coreloc2);
 
-        cout << connect_points[0].chip_id <<" " << connect_points[0].row_id <<" " << connect_points[0].col_id <<" " << endl;
-        cout << connect_points[1].chip_id <<" " << connect_points[1].row_id <<" " << connect_points[1].col_id <<" " << endl;
+        // cout << connect_points[0].chip_id <<" " << connect_points[0].row_id <<" " << connect_points[0].col_id <<" " << endl;
+        // cout << connect_points[1].chip_id <<" " << connect_points[1].row_id <<" " << connect_points[1].col_id <<" " << endl;
 
-        // if (left_loc == right_loc ) return true; // only connect via one Noc
+        if (left_loc == right_loc ) return true; // only connect via one Noc
 
-        CoreLoc coreloc3 = {chip_id, right_loc, downbound1};
-        CoreLoc coreloc4 = {chip_id, right_loc, upbound2};
-        connect_points[2] = coreloc3;
-        connect_points[3] = coreloc4;
-
-        return true;
-    }
-    if (leftbound1 + 1 == rightbound2){
-        if (downbound1 > upbound2 || downbound2 > upbound1) return false;
-        int down_loc = max(downbound1, downbound2);
-        int up_loc = min(upbound1, upbound2);
-
-        CoreLoc coreloc1 = {chip_id, rightbound1, down_loc};
-        CoreLoc coreloc2 = {chip_id, leftbound2, down_loc};
-        connect_points[0] = coreloc1;
-        connect_points[1] = coreloc2;
-
-        // if (up_loc == down_loc ) return true; // only connect via one Noc
-
-        CoreLoc coreloc3 = {chip_id, rightbound1, up_loc};
-        CoreLoc coreloc4 = {chip_id, leftbound2, up_loc};
-        connect_points[2] = coreloc3;
-        connect_points[3] = coreloc4;
+        CoreLoc coreloc3 = {chip_id, downbound1, right_loc};
+        CoreLoc coreloc4 = {chip_id, upbound2, right_loc};
+        connect_points.push_back(coreloc3);
+        connect_points.push_back(coreloc4);
 
         return true;
     }
-    if (leftbound2 + 1 == rightbound1){
-        if (downbound1 > upbound2 || downbound2 > upbound1) return false;
-        int down_loc = max(downbound1, downbound2);
-        int up_loc = min(upbound1, upbound2);
+    if (leftbound1 - 1 == rightbound2){
+        if (downbound1 < upbound2 || downbound2 < upbound1) return false;
+        int down_loc = min(downbound1, downbound2);
+        int up_loc = max(upbound1, upbound2);
 
-        CoreLoc coreloc1 = {chip_id, leftbound1, down_loc};
-        CoreLoc coreloc2 = {chip_id, rightbound2, down_loc};
-        connect_points[0] = coreloc1;
-        connect_points[1] = coreloc2;
+        CoreLoc coreloc1 = {chip_id, up_loc, leftbound1};
+        CoreLoc coreloc2 = {chip_id, up_loc, rightbound2};
+        connect_points.push_back(coreloc1);
+        connect_points.push_back(coreloc2);
 
-        // if (up_loc == down_loc ) return true; // only connect via one Noc
+        if (up_loc == down_loc ) return true; // only connect via one Noc
 
-        CoreLoc coreloc3 = {chip_id, leftbound1, up_loc};
-        CoreLoc coreloc4 = {chip_id, rightbound2, up_loc};
-        connect_points[2] = coreloc3;
-        connect_points[3] = coreloc4;
+        CoreLoc coreloc3 = {chip_id, down_loc, leftbound1};
+        CoreLoc coreloc4 = {chip_id, down_loc, rightbound2};
+        connect_points.push_back(coreloc3);
+        connect_points.push_back(coreloc4);
+
+        return true;
+    }
+    if (leftbound2 - 1 == rightbound1){
+        if (downbound1 < upbound2 || downbound2 < upbound1) return false;
+        int down_loc = min(downbound1, downbound2);
+        int up_loc = max(upbound1, upbound2);
+
+        CoreLoc coreloc1 = {chip_id, up_loc, rightbound1};
+        CoreLoc coreloc2 = {chip_id, up_loc, leftbound2};
+        connect_points.push_back(coreloc1);
+        connect_points.push_back(coreloc2);
+
+        if (up_loc == down_loc ) return true; // only connect via one Noc
+
+        CoreLoc coreloc3 = {chip_id, down_loc, rightbound1};
+        CoreLoc coreloc4 = {chip_id, down_loc, leftbound2};
+        connect_points.push_back(coreloc3);
+        connect_points.push_back(coreloc4);
 
         return true;
     }
@@ -122,30 +124,30 @@ void find_vertice(CoreRange corerange1, CoreRange corerange2, bool rows_split1, 
     int row_id1 = corerange1.coreloc.row_id;
     int col_id1 = corerange1.coreloc.col_id;
     if (rows_split1) {
-        layer1_vertice[0] = {chip_id1, row_id1, col_id1};
-        layer1_vertice[1] = {chip_id1, row_id1, col_id1 + cols1 - 1};
-        layer1_vertice[2] = {chip_id1, row_id1 + rows1 - 1, col_id1};
-        layer1_vertice[3] = {chip_id1, row_id1 + rows1 - 1, col_id1 + cols1 - 1};
+        layer1_vertice.push_back({chip_id1, row_id1, col_id1});
+        layer1_vertice.push_back({chip_id1, row_id1, col_id1 + cols1 - 1});
+        layer1_vertice.push_back({chip_id1, row_id1 + rows1 - 1, col_id1});
+        layer1_vertice.push_back({chip_id1, row_id1 + rows1 - 1, col_id1 + cols1 - 1});
     } else {
-        layer1_vertice[0] = {chip_id1, row_id1, col_id1};
-        layer1_vertice[1] = {chip_id1, row_id1 + rows1 - 1, col_id1};
-        layer1_vertice[2] = {chip_id1, row_id1, col_id1 + cols1 - 1};
-        layer1_vertice[3] = {chip_id1, row_id1 + rows1 - 1, col_id1 + cols1 - 1};
+        layer1_vertice.push_back({chip_id1, row_id1, col_id1});
+        layer1_vertice.push_back({chip_id1, row_id1 + rows1 - 1, col_id1});
+        layer1_vertice.push_back({chip_id1, row_id1, col_id1 + cols1 - 1});
+        layer1_vertice.push_back({chip_id1, row_id1 + rows1 - 1, col_id1 + cols1 - 1});
     }
 
     int chip_id2 = corerange2.coreloc.chip_id;
     int row_id2 = corerange2.coreloc.row_id;
     int col_id2 = corerange2.coreloc.col_id;
     if (rows_split2) {
-        layer2_vertice[0] = {chip_id2, row_id2, col_id2};
-        layer2_vertice[1] = {chip_id2, row_id2, col_id2 + cols2 - 1};
-        layer2_vertice[2] = {chip_id2, row_id2 + rows2 - 1, col_id2};
-        layer2_vertice[3] = {chip_id2, row_id2 + rows2 - 1, col_id2 + cols2 - 1};
+        layer2_vertice.push_back({chip_id2, row_id2, col_id2});
+        layer2_vertice.push_back({chip_id2, row_id2, col_id2 + cols2 - 1});
+        layer2_vertice.push_back({chip_id2, row_id2 + rows2 - 1, col_id2});
+        layer2_vertice.push_back({chip_id2, row_id2 + rows2 - 1, col_id2 + cols2 - 1});
     } else {
-        layer2_vertice[0] = {chip_id2, row_id2, col_id2};
-        layer2_vertice[1] = {chip_id2, row_id2 + rows2 - 1, col_id2};
-        layer2_vertice[2] = {chip_id2, row_id2, col_id2 + cols2 - 1};
-        layer2_vertice[3] = {chip_id2, row_id2 + rows2 - 1, col_id2 + cols2 - 1};
+        layer2_vertice.push_back({chip_id2, row_id2, col_id2});
+        layer2_vertice.push_back({chip_id2, row_id2 + rows2 - 1, col_id2});
+        layer2_vertice.push_back({chip_id2, row_id2, col_id2 + cols2 - 1});
+        layer2_vertice.push_back({chip_id2, row_id2 + rows2 - 1, col_id2 + cols2 - 1});
     }
 
     float shards1 = rows_split1 ? rows1 : cols1;
@@ -155,29 +157,32 @@ void find_vertice(CoreRange corerange1, CoreRange corerange2, bool rows_split1, 
         int step = ceil(shards1/shards2) - 1;
         if (rows_split1){
         // some points may coincide. As far as I'm concerned, it doesn't matter.
-            layer1_vertice[4] = {chip_id1, row_id1 + step, col_id1};
-            layer1_vertice[5] = {chip_id1, row_id1 + step, col_id1 + cols1 - 1};
-            layer1_vertice[6] = {chip_id1, row_id1 + rows1 - 1 - step, col_id1};
-            layer1_vertice[7] = {chip_id1, row_id1 + rows1 - 1 - step, col_id1 + cols1 - 1};
+        layer1_vertice.push_back({chip_id1, row_id1 + step, col_id1});
+        layer1_vertice.push_back({chip_id1, row_id1 + step, col_id1 + cols1 - 1});
+        layer1_vertice.push_back({chip_id1, row_id1 + rows1 - 1 - step, col_id1});
+        layer1_vertice.push_back({chip_id1, row_id1 + rows1 - 1 - step, col_id1 + cols1 - 1});
+      
         } else {
-            layer1_vertice[4] = {chip_id1, row_id1, col_id1 + step};
-            layer1_vertice[5] = {chip_id1, row_id1 + rows1 - 1, col_id1 + step};
-            layer1_vertice[6] = {chip_id1, row_id1, col_id1 + cols1 - 1 - step};
-            layer1_vertice[7] = {chip_id1, row_id1 + rows1 - 1, col_id1 + cols1 - 1 - step};
+        layer1_vertice.push_back({chip_id1, row_id1, col_id1 + step});
+        layer1_vertice.push_back({chip_id1, row_id1 + rows1 - 1, col_id1 + step});
+        layer1_vertice.push_back({chip_id1, row_id1, col_id1 + cols1 - 1 - step});
+        layer1_vertice.push_back({chip_id1, row_id1 + rows1 - 1, col_id1 + cols1 - 1 - step});
+        
         }
     } else if (shards1 < shards2){
         int step = ceil(shards2/shards1) - 1;
         if (rows_split2){
         // some points may coincide. As far as I'm concerned, it doesn't matter.
-            layer2_vertice[4] = {chip_id2, row_id2 + step, col_id2};
-            layer2_vertice[5] = {chip_id2, row_id2 + step, col_id2 + cols2 - 1};
-            layer2_vertice[6] = {chip_id2, row_id2 + rows2 - 1 - step, col_id2};
-            layer2_vertice[7] = {chip_id2, row_id2 + rows2 - 1 - step, col_id2 + cols2 - 1};
+        layer2_vertice.push_back({chip_id2, row_id2 + step, col_id2});
+        layer2_vertice.push_back({chip_id2, row_id2 + step, col_id2 + cols2 - 1});
+        layer2_vertice.push_back({chip_id2, row_id2 + rows2 - 1 - step, col_id2});
+        layer2_vertice.push_back({chip_id2, row_id2 + rows2 - 1 - step, col_id2 + cols2 - 1});
         } else {
-            layer1_vertice[4] = {chip_id2, row_id2, col_id2 + step};
-            layer1_vertice[5] = {chip_id2, row_id2 + rows2 - 1, col_id2 + step};
-            layer1_vertice[6] = {chip_id2, row_id2, col_id2 + cols2 - 1 - step};
-            layer1_vertice[7] = {chip_id2, row_id2 + rows2 - 1, col_id2 + cols2 - 1 - step};
+        layer2_vertice.push_back({chip_id2, row_id2, col_id2 + step});
+        layer2_vertice.push_back({chip_id2, row_id2 + rows2 - 1, col_id2 + step});
+        layer2_vertice.push_back({chip_id2, row_id2, col_id2 + cols2 - 1 - step});
+        layer2_vertice.push_back({chip_id2, row_id2 + rows2 - 1, col_id2 + cols2 - 1 - step});
+        
         }
     }
     return;
