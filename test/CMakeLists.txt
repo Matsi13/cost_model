@@ -5,3 +5,7 @@ add_test(NAME layer_test COMMAND layer_test)
 add_executable(connection_point_test connection_point_test.cpp)
 target_link_libraries(connection_point_test layer_lib)
 add_test(NAME connection_point_test COMMAND connection_point_test)
+
+add_executable(find_vertice_test find_vertice_test.cpp)
+target_link_libraries(find_vertice_test layer_lib)
+add_test(NAME find_vertice_test COMMAND find_vertice_test)
