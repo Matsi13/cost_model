@@ -40,7 +40,7 @@ bool find_connect_points(CoreRange corerange1, CoreRange corerange2, vector<Core
         connect_points.push_back(coreloc2);
 
 
-        if (left_loc == right_loc ) return true; // only connect via one Noc
+        // if (left_loc == right_loc ) return true; // only connect via one Noc
 
         CoreLoc coreloc3 = {chip_id, upbound1, right_loc};
         CoreLoc coreloc4 = {chip_id, downbound2, right_loc};
@@ -63,7 +63,7 @@ bool find_connect_points(CoreRange corerange1, CoreRange corerange2, vector<Core
         // cout << connect_points[0].chip_id <<" " << connect_points[0].row_id <<" " << connect_points[0].col_id <<" " << endl;
         // cout << connect_points[1].chip_id <<" " << connect_points[1].row_id <<" " << connect_points[1].col_id <<" " << endl;
 
-        if (left_loc == right_loc ) return true; // only connect via one Noc
+        // if (left_loc == right_loc ) return true; // only connect via one Noc
 
         CoreLoc coreloc3 = {chip_id, downbound1, right_loc};
         CoreLoc coreloc4 = {chip_id, upbound2, right_loc};
@@ -82,7 +82,7 @@ bool find_connect_points(CoreRange corerange1, CoreRange corerange2, vector<Core
         connect_points.push_back(coreloc1);
         connect_points.push_back(coreloc2);
 
-        if (up_loc == down_loc ) return true; // only connect via one Noc
+        // if (up_loc == down_loc ) return true; // only connect via one Noc
 
         CoreLoc coreloc3 = {chip_id, down_loc, leftbound1};
         CoreLoc coreloc4 = {chip_id, down_loc, rightbound2};
@@ -101,7 +101,7 @@ bool find_connect_points(CoreRange corerange1, CoreRange corerange2, vector<Core
         connect_points.push_back(coreloc1);
         connect_points.push_back(coreloc2);
 
-        if (up_loc == down_loc ) return true; // only connect via one Noc
+        // if (up_loc == down_loc ) return true; // only connect via one Noc
 
         CoreLoc coreloc3 = {chip_id, down_loc, rightbound1};
         CoreLoc coreloc4 = {chip_id, down_loc, leftbound2};
@@ -188,4 +188,52 @@ void find_vertice(CoreRange corerange1, CoreRange corerange2, bool rows_split1, 
     return;
 }
 
+int core_line_dist(CoreLoc core, CoreLoc line_start, CoreLoc line_end, CoreLoc & pedal){
+    bool same_chip = (core.chip_id == line_start.chip_id) && (line_start.chip_id == line_end.chip_id);
+    int dist;
+    if (!same_chip ) return -1;
+    pedal.chip_id = core.chip_id;
+    if (is_same_point(line_start, line_end)) {
+        pedal = line_start;
+        dist = core_dist(core, line_start);
+    } else if (line_start.row_id == line_end.row_id) {
+        // horizontal line
+        int leftbound = min(line_start.col_id, line_end.col_id);
+        int rightbound = max(line_start.col_id, line_end.col_id);
+        if (core.col_id < leftbound){
+            pedal.col_id = leftbound;
+            pedal.row_id = line_start.row_id;
+            dist = core_dist(pedal, core);
+        } else if (core.col_id > rightbound){
+            pedal.col_id = rightbound;
+            pedal.row_id = line_start.row_id;
+            dist = core_dist(pedal, core);
+        } else {
+            dist = abs(core.row_id - line_start.row_id);
+            pedal.row_id = line_start.row_id;
+            pedal.col_id = core.col_id;
+            
+        }
+        
+    } else if (line_start.col_id == line_end.col_id){
+        // vertical line
+        int upbound = min(line_start.row_id, line_end.row_id);
+        int downbound = max(line_start.row_id, line_end.row_id);
+        if (core.row_id < upbound){
+            pedal.row_id = upbound;
+            pedal.col_id = line_start.col_id;
+            dist = core_dist(pedal, core);
+        } else if (core.row_id > downbound){
+            pedal.row_id = downbound;
+            pedal.col_id = line_start.col_id;
+            dist = core_dist(pedal, core);
+        } else {
+            dist = abs(core.col_id - line_start.col_id);
+            pedal.row_id = core.row_id;
+            pedal.col_id = line_start.col_id;
+        }
 
+        
+    } else return -1;
+    return dist;
+}
