@@ -8,5 +8,4 @@
 
 ## TODO:
 1. allocate diffrent cores to a layer in forward and backward process
-2. data transfer across chips
-
+2. set APIs for each class
