@@ -1,6 +1,9 @@
-#include "neuralNetwork.h"
+#include <cmath>
 #include <vector>
+
+#include "neuralNetwork.h"
 #include "route_helper.h"
+
 using namespace std;
 
 int NeuralNetwork::insert_layer(PhysicalLayer newlayer){
@@ -19,7 +22,9 @@ float NeuralNetwork::forward_input_time(int i){
     list<int> inputs_id = layers[i].input_layers_id;
     // If the layer has no input, it's one of the first layers. Assume the input is ready.
     if (inputs_id.empty()) return 0; 
-     int max_dist = 0;
+
+    int max_dist_input_rcv = 0, max_dist_input = 0, max_dist_rcv = 0;
+    float max_transfer_time = 0;
     
     for (auto input_id = inputs_id.begin(); input_id != inputs_id.end(); input_id ++){
         PhysicalLayer input_layer = layers[*input_id];
@@ -45,7 +50,7 @@ float NeuralNetwork::forward_input_time(int i){
         vector<int> input_dists;
         vector<int> rcv_dists;
 
-        // 3. calculate the 2/4 longest distances from input to connection points
+        // 3. calculate the 2/4 shortest distances from input to connection points
         
         for (int i = 0; i < input_layer_vertice.size() - 1; i+=2){
             CoreLoc pedal1, pedal2;
@@ -69,34 +74,57 @@ float NeuralNetwork::forward_input_time(int i){
             dist1 = core_line_dist(rcv_layer_vertice[i], connect_points[1], connect_points[3], pedal1);
             dist2 = core_line_dist(rcv_layer_vertice[i + 1], connect_points[1], connect_points[3], pedal2);
             if (dist1 > dist2){
-                rcv_pedals.push_back(pedal2);
-                rcv_dists.push_back(dist2);
-            } else{
                 rcv_pedals.push_back(pedal1);
                 rcv_dists.push_back(dist1);
+            } else{
+                rcv_pedals.push_back(pedal2);
+                rcv_dists.push_back(dist2);
             }
         }
 
-        // 5. calculate distances between pairs -- It seems that we don't need to mark which pair generate the longest distance. We only need to get the longest distance
+        // 5. calculate distances between pairs. The longest path = min(dist(input, connect)) + max(dist(connect, rcv)). It seems that we don't need to mark which pair generate the longest distance. We only need to get the longest distance
        
         for (int i = 0; i < 2; i++){
-            int input_rcv_dist = input_dists[i] + core_dist(input_pedals[i], rcv_pedals[i]) + rcv_dists[i];
-            int inner_dist;
-            if (input_dists.size() > 2) {
-                inner_dist = input_dists[i + 2] + core_dist(input_pedals[i + 2], rcv_pedals[i]) + rcv_dists[i];
-                input_rcv_dist = max(inner_dist, input_rcv_dist);
-            } else if(rcv_dists.size() > 2){
-                inner_dist = input_dists[i] + core_dist(input_pedals[i], rcv_pedals[i + 2]) + rcv_dists[i + 2];
-                input_rcv_dist = max(inner_dist, input_rcv_dist);
-            }
-            if (input_rcv_dist > max_dist) max_dist = input_rcv_dist;
-        }
+            int temp_dist_input_rcv, temp_dist_input, temp_dist_rcv;
 
+            int dist_input_rcv_outer = input_dists[i] + core_dist(input_pedals[i], rcv_pedals[i]) + rcv_dists[i];
+            temp_dist_input_rcv = dist_input_rcv_outer;
+            temp_dist_input = input_dists[i];
+            temp_dist_rcv = core_dist(input_pedals[i], rcv_pedals[i]) + rcv_dists[i];
+
+            int dist_input_rcv_inner;
+            if (input_dists.size() > 2) {
+                dist_input_rcv_inner = input_dists[i + 2] + core_dist(input_pedals[i + 2], rcv_pedals[i]) + rcv_dists[i];
+                if (dist_input_rcv_inner > dist_input_rcv_outer){
+                    temp_dist_input_rcv = dist_input_rcv_inner;
+                    temp_dist_input = input_dists[i + 2];
+                    temp_dist_rcv = core_dist(input_pedals[i + 2], rcv_pedals[i]) + rcv_dists[i];
+                }               
+            } else if(rcv_dists.size() > 2){
+                dist_input_rcv_inner = input_dists[i] + core_dist(input_pedals[i], rcv_pedals[i + 2]) + rcv_dists[i + 2];
+                if (dist_input_rcv_inner > dist_input_rcv_outer){
+                    temp_dist_input_rcv = dist_input_rcv_inner;
+                    temp_dist_input = input_dists[i];
+                    temp_dist_rcv = core_dist(input_pedals[i], rcv_pedals[i + 2]) + rcv_dists[i + 2];
+                }       
+            }
+            if (temp_dist_input_rcv > max_dist_input_rcv) {
+                max_dist_input_rcv = temp_dist_input_rcv;
+                max_dist_input = temp_dist_input;
+                max_dist_rcv = temp_dist_rcv;   
+            }
+        } 
+        float input_shard_size = input_layer.is_trans ? ceil(input_layer.weight_size_col/input_layer.cores.cols) : ceil(input_layer.weight_size_row/input_layer.cores.rows); 
+        float rcv_shard_size = rcv_layer.is_trans ? ceil(rcv_layer.weight_size_row/rcv_layer.cores.rows) : ceil(rcv_layer.weight_size_col/rcv_layer.cores.cols);
+
+        float temp_transfer_time = ( max_dist_input * input_shard_size + max_dist_rcv * min(input_shard_size, rcv_shard_size)) * rcv_layer.mem_byte_wid / device.BW_NoC;
+        if (temp_transfer_time > max_transfer_time)  max_transfer_time = temp_transfer_time;
         
     }
         
+    
 
-    return float(max_dist)/device.BW_NoC;
+    return max_transfer_time;
 
     }
 

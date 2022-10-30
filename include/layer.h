@@ -9,7 +9,7 @@ using namespace std;
 class PhysicalLayer{
 public :
     PhysicalLayer();
-    PhysicalLayer(int layerid, bool hasweight, bool istrans, int weightsizerow, int weightsizecol, string nonlinearfunc, list<int> inputlayerid, list<int> outputlayerid, CoreRange thecores);
+    PhysicalLayer(int layerid, bool hasweight, bool istrans, int weightsizerow, int weightsizecol, int membytewid, int calbytewid, string nonlinearfunc, list<int> inputlayerid, list<int> outputlayerid, CoreRange thecores);
     ~PhysicalLayer(){};
     int layer_id;             // each layer has a unique id. Use layer id to index a layer in the vector. Start form 0.
     bool has_weight;          // if false, this layer is just a non-linear function
@@ -17,6 +17,8 @@ public :
     bool is_trans;            // if is_trans = false, matrix row is mapped to PE rows
     int weight_size_row;      // rows of weight     
     int weight_size_col;      // columns of weight
+    int mem_byte_wid;         // precision of stored data
+    int cal_byte_wid;         // precision of calculate
     string non_linear_func;   // currently, support ReLU and tanh
 
     list<int> input_layers_id;

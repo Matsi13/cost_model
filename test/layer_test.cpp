@@ -11,14 +11,14 @@ int main(){
     CoreLoc coreloc1 = {0,0,0};
     CoreRange corerange1 = {coreloc1, 4, 8};
    
-    PhysicalLayer layer0(0, true, false, 1024, 1024, "ReLU", input_layer_id0, output_layer_id0, corerange1);
+    PhysicalLayer layer0(0, true, false, 1024, 1024, 4, 2, "ReLU", input_layer_id0, output_layer_id0, corerange1);
 
     list<int> input_layer_id1 = {0};
     list<int> output_layer_id1 = {};
     CoreLoc coreloc2 = {0,4,0};
     CoreRange corerange2 = {coreloc2, 4, 8};
     
-    PhysicalLayer layer1(1,true, false, 1024, 1024, "ReLU", input_layer_id1, output_layer_id1,corerange2);
+    PhysicalLayer layer1(1,true, false, 1024, 1024, 4, 2, "ReLU", input_layer_id1, output_layer_id1,corerange2);
     
     NeuralNetwork dnn;
     dnn.insert_layer(layer0);
