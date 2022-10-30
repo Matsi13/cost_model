@@ -9,7 +9,7 @@ add_subdirectory(src)
 
 
 add_executable(${PROJECT_NAME} cost_model.cpp)
-target_link_libraries(${PROJECT_NAME} layer_lib)
+target_link_libraries(${PROJECT_NAME} total_lib)
 
 
 include(CTest)

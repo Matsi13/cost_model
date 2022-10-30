@@ -20,9 +20,12 @@ bool is_same_point(CoreLoc core1, CoreLoc core2);
 // calculate distance between two cores on the same chip
 int core_dist(CoreLoc core1, CoreLoc core2);
 
+// calculate distance between a core and a line. Return the distance and the pedal 
+int core_line_dist(CoreLoc core1, CoreLoc line_start, CoreLoc line_end, CoreLoc & pedal);
+
 /* 
 Check if two group of cores has direct Noc connection. If true, these layers can communicate with their own Noc. Otherwise, they have to use other layer's Noc. 
-At most, we can find 4 connect points. They are stored in order of (connection1, corerange1), (connection1, corerange2), (connection2, corerange1), (connection2, corerange2)
+Connect points are stored in order of (connection1, corerange1), (connection1, corerange2), (connection2, corerange1), (connection2, corerange2)
 */
 bool find_connect_points(CoreRange corerange1, CoreRange corerange2, vector<CoreLoc> &connect_points);
 

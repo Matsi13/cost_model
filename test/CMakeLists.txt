@@ -1,11 +1,19 @@
 add_executable(layer_test layer_test.cpp)
-target_link_libraries(layer_test layer_lib)
+target_link_libraries(layer_test total_lib)
 add_test(NAME layer_test COMMAND layer_test)
 
 add_executable(connection_point_test connection_point_test.cpp)
-target_link_libraries(connection_point_test layer_lib)
+target_link_libraries(connection_point_test route_lib)
 add_test(NAME connection_point_test COMMAND connection_point_test)
 
 add_executable(find_vertice_test find_vertice_test.cpp)
-target_link_libraries(find_vertice_test layer_lib)
+target_link_libraries(find_vertice_test route_lib)
 add_test(NAME find_vertice_test COMMAND find_vertice_test)
+
+add_executable(core_dist_test core_dist_test.cpp)
+target_link_libraries(core_dist_test route_lib)
+add_test(NAME core_dist_test COMMAND core_dist_test)
+
+add_executable(get_forward_input_test get_forward_input_test.cpp)
+target_link_libraries(get_forward_input_test total_lib)
+add_test(NAME get_forward_input_test COMMAND get_forward_input_test)
