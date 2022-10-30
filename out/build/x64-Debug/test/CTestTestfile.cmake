@@ -8,3 +8,5 @@ add_test(layer_test "D:/VS projects/cost_model/cost_model/out/build/x64-Debug/te
 set_tests_properties(layer_test PROPERTIES  _BACKTRACE_TRIPLES "D:/VS projects/cost_model/cost_model/test/CMakeLists.txt;3;add_test;D:/VS projects/cost_model/cost_model/test/CMakeLists.txt;0;")
 add_test(connection_point_test "D:/VS projects/cost_model/cost_model/out/build/x64-Debug/test/connection_point_test.exe")
 set_tests_properties(connection_point_test PROPERTIES  _BACKTRACE_TRIPLES "D:/VS projects/cost_model/cost_model/test/CMakeLists.txt;7;add_test;D:/VS projects/cost_model/cost_model/test/CMakeLists.txt;0;")
+add_test(find_vertice_test "D:/VS projects/cost_model/cost_model/out/build/x64-Debug/test/find_vertice_test.exe")
+set_tests_properties(find_vertice_test PROPERTIES  _BACKTRACE_TRIPLES "D:/VS projects/cost_model/cost_model/test/CMakeLists.txt;11;add_test;D:/VS projects/cost_model/cost_model/test/CMakeLists.txt;0;")
