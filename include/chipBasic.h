@@ -1,28 +1,33 @@
 #ifndef CHIPBASIC_H
 #define CHIPBASIC_H
-
+#include <string>
+#include <vector>
+#include "route_helper.h"
+using namespace std;
 
 class ChipBasic{
 public :
-    ChipBasic(int locrow, int loccol, float bwnoc, int netlocrow, int netloccol, float bwnet, bool isdramup, bool isdramdown, bool isdramleft, bool isdramright, float sizedram, float bwdram, int numportdram, int numcorerow, int numcorecol, float coreflops, float sizesram);
+    ChipBasic(int chipid, int locrow, int loccol, CoreLoc netportloc, float bwnet, vector<CoreLoc> DRAMlocs, vector<float> DRAMsizes, float BWDRAM, int numcorerow, int numcorecol,float bwnoc, float coreflopsfp8, float coreflopsfp16, float sizesram);
     ChipBasic();
     ~ChipBasic(){};
+    float non_linear_func_time(string func_name);
+    float non_linear_func_back_time(string func_name);
+    int chip_id;
     int loc_row;           // location of the Chip
     int loc_col;
-    float BW_NoC;          // bandwidth of onchip network, Byte/s
-    int net_loc_row;       // location of the Ethernet port
-    int net_loc_col;
+
+    CoreLoc net_port_loc;
     float BW_net;          // bandwidth of Ethernet
-    bool is_DRAM_up;     
-    bool is_DRAM_down;
-    bool is_DRAM_left;
-    bool is_DRAM_right;
-    float size_DRAM;        // size of each DRAM, measured in Byte
-    float BW_DRAM;          // total bandwidth of each DRAM. That's to say, sum up the ports, but leave each DRAM alone
-    int num_port_DRAM;      // number of DRAM ports
+
+    vector<CoreLoc> DRAM_locs;       // start1, end1, start2, end2, ……
+    vector<float> DRAM_sizes;        // size of each DRAM, measured in Byt
+    float BW_DRAM;          // bandwidth of each port
+
     int num_core_row;       // number of core rows
     int num_core_col;       // number of core cols
-    float core_FLOPS;
+    float BW_NoC;           // bandwidth of onchip network, Byte/s
+    float core_FLOPS_fp8;   // FLOPS per core
+    float core_FLOPS_fp16;
     float size_SRAM;        // size of SRAM per core, measured in bytes
 
 
