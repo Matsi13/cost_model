@@ -96,7 +96,7 @@ float NeuralNetwork::forward_input_time(int i){
                     max_dist_rcv = temp_dist_rcv;   
                 }
             } 
-            float temp_transfer_time = ( max_dist_input * input_shard_size + max_dist_rcv * min(input_shard_size, rcv_shard_size)) * rcv_layer.mem_byte_wid / device.BW_NoC + input_total_size * rcv_layer.mem_byte_wid / device.BW_net;
+            float temp_transfer_time = ( max_dist_input * input_shard_size + max_dist_rcv * min(input_shard_size, rcv_shard_size)) * rcv_layer.mem_byte_wid / min(device.BW_NoC, device.BW_net) ;
             if (temp_transfer_time > max_transfer_time)  max_transfer_time = temp_transfer_time;
         } else {
             // find connect points
@@ -393,7 +393,7 @@ float NeuralNetwork::backward_input_time(int i){
                     max_dist_rcv = temp_dist_rcv;   
                 }
             } 
-            float temp_transfer_time = ( max_dist_output * output_shard_size + max_dist_rcv * min(output_shard_size, rcv_shard_size)) * rcv_layer.mem_byte_wid / device.BW_NoC + output_total_size * rcv_layer.mem_byte_wid / device.BW_net;
+            float temp_transfer_time = ( max_dist_output * output_shard_size + max_dist_rcv * min(output_shard_size, rcv_shard_size)) * rcv_layer.mem_byte_wid / min(device.BW_NoC, device.BW_net) ;
             if (temp_transfer_time > max_transfer_time)  max_transfer_time = temp_transfer_time;
         } else {
             // find connect points
