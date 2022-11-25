@@ -27,7 +27,7 @@ public :
     float backward_weight_update_time(int i);
     float backward_compute_time(int i);
     float backward_reduce_time(int i);
-    // float backward_weight_sync_time(int i);
+    float backward_weight_sync_time(int in_idx, int out_idx);
 };
 
 
