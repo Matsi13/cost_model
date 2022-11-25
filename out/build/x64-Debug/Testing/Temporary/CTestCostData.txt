@@ -1,5 +1,0 @@
-layer_test 2 0.00871475
-connection_point_test 2 0.0093221
-find_vertice_test 0 0
----
-find_vertice_test
