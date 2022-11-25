@@ -17,7 +17,7 @@ int main(){
     CoreRange corerange2 = {coreloc2, 3, 3};
     find_connect_points(corerange1, corerange2,connect_points);
 
-    size_right = connect_points.size() == 4;
+    size_right = connect_points.size() == 2;
     point0_right = is_same_point(connect_points[0], {0,6,4});
     point1_right = is_same_point(connect_points[1], {0,7,4});
 
@@ -72,7 +72,7 @@ int main(){
     corerange2 = {coreloc2, 1, 3};
     find_connect_points(corerange1, corerange2,connect_points);
 
-    size_right = connect_points.size() == 4;
+    size_right = connect_points.size() == 2;
     point0_right = is_same_point(connect_points[0], {0,5,7});
     point1_right = is_same_point(connect_points[1], {0,5,8});
 

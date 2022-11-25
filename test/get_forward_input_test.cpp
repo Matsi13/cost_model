@@ -15,7 +15,7 @@ int main(){
     CoreLoc coreloc1 = {0,0,0};
     CoreRange corerange1 = {coreloc1, 4, 8};
    
-     PhysicalLayer layer0(0, true, false, 1024, 1024, 4, 2, "ReLU", input_layer_id0, output_layer_id0, corerange1);
+    PhysicalLayer layer0(0, true, false, 1024, 1024, 4, 2, "ReLU", input_layer_id0, output_layer_id0, corerange1);
 
     list<int> input_layer_id1 = {0};
     list<int> output_layer_id1 = {};

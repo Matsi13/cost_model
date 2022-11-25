@@ -1,0 +1,98 @@
+commit 0173d2cee6976b4fff36eeb58aba178eb7904b09
+Author: Matsi13 <3291214431@qq.com>
+Date:   Mon Oct 31 22:07:26 2022 +0800
+
+    fix : fix the bug in data communication across chips
+
+commit 1d9a6335505ee849fbeaf0795d2e0b95476c9b27
+Merge: 916a2af 0db3bfe
+Author: Matsi13 <3291214431@qq.com>
+Date:   Mon Oct 31 18:18:29 2022 +0800
+
+    Merge branch 'master' of github.com:Matsi13/cost_model
+
+commit 916a2af8a88c9e4d8b7ab2e54687a3a903b18862
+Author: Matsi13 <3291214431@qq.com>
+Date:   Mon Oct 31 18:15:46 2022 +0800
+
+    feat : only weight_sync is unfinished. Others remain to be tested.
+
+commit 0db3bfe38ed583b5256a4bee35e48cd23cfd86a6
+Merge: 4c08a72 463eede
+Author: Matsi13 <3291214431@qq.com>
+Date:   Sun Oct 30 16:04:07 2022 +0800
+
+    local change
+
+commit 4c08a728d02bbaf0321e6f02b13fed24a1b57b42
+Author: Matsi13 <3291214431@qq.com>
+Date:   Sun Oct 30 16:02:51 2022 +0800
+
+    local change
+
+commit 463eeded5fbbe52029338264d57fc26246f44ed7
+Author: Matsi13 <3291214431@qq.com>
+Date:   Sun Oct 30 15:57:09 2022 +0800
+
+    feat : add data transfer across chips
+
+commit 9395c9f7b4c23b407ec486aa48cb980555576f79
+Author: Matsi13 <3291214431@qq.com>
+Date:   Sun Oct 30 13:11:48 2022 +0800
+
+    feat : function get_forward_input has been tested
+
+commit 2d3d6502951c7d6d7eb0174e01e1f9645dd14bf8
+Author: Matsi13 <3291214431@qq.com>
+Date:   Sat Oct 29 20:06:51 2022 +0800
+
+    unstable : function get_forward_input hasn't been tested
+
+commit 8201eafa61d9d4fe219c268584d3554d60aa939d
+Merge: 01c29ca d999f60
+Author: Matsi13 <3291214431@qq.com>
+Date:   Fri Oct 28 10:58:06 2022 +0800
+
+    local change
+
+commit 01c29ca2d4831319256bc75c350b8ec26f4e6f60
+Author: Matsi13 <3291214431@qq.com>
+Date:   Fri Oct 28 10:56:26 2022 +0800
+
+    local change
+
+commit d999f601e64711e78f6f1449d027182b79014e85
+Author: Matsi13 <3291214431@qq.com>
+Date:   Fri Oct 28 10:54:01 2022 +0800
+
+    function find_vertice has bugs
+
+commit f5be267a3f903405d0214661712e8a0218aa776a
+Author: Matsi13 <3291214431@qq.com>
+Date:   Thu Oct 27 23:27:18 2022 +0800
+
+    fix : fix function find_connection_points
+
+commit f341bf698e1fc5d7a65c0de762b175eb3f487fe9
+Author: Matsi13 <3291214431@qq.com>
+Date:   Thu Oct 27 18:12:38 2022 +0800
+
+    function find_connect_points has bugs
+
+commit e0aa1f81703e9b807d074ce83d9933fa3ef36811
+Author: Matsi13 <3291214431@qq.com>
+Date:   Mon Oct 24 22:51:29 2022 +0800
+
+    feat : add test file for PhysicalLayer constructor
+
+commit 95c22f672dc3ccac2e78b16649631fa22d02cf7e
+Author: Matsi13 <3291214431@qq.com>
+Date:   Mon Oct 24 14:28:52 2022 +0800
+
+    feat: add constructor of PhysicalLayer; TODO:test the constructor
+
+commit c6601ddb93d9f6d164fe43ba5468aac19d5b2259
+Author: Matsi13 <3291214431@qq.com>
+Date:   Sun Oct 23 21:33:51 2022 +0800
+
+    initialize

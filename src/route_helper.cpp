@@ -40,7 +40,7 @@ bool find_connect_points(CoreRange corerange1, CoreRange corerange2, vector<Core
         connect_points.push_back(coreloc2);
 
 
-        // if (left_loc == right_loc ) return true; // only connect via one Noc
+        if (left_loc == right_loc ) return true; // only connect via one Noc
 
         CoreLoc coreloc3 = {chip_id, upbound1, right_loc};
         CoreLoc coreloc4 = {chip_id, downbound2, right_loc};
@@ -63,7 +63,7 @@ bool find_connect_points(CoreRange corerange1, CoreRange corerange2, vector<Core
         // cout << connect_points[0].chip_id <<" " << connect_points[0].row_id <<" " << connect_points[0].col_id <<" " << endl;
         // cout << connect_points[1].chip_id <<" " << connect_points[1].row_id <<" " << connect_points[1].col_id <<" " << endl;
 
-        // if (left_loc == right_loc ) return true; // only connect via one Noc
+        if (left_loc == right_loc ) return true; // only connect via one Noc
 
         CoreLoc coreloc3 = {chip_id, downbound1, right_loc};
         CoreLoc coreloc4 = {chip_id, upbound2, right_loc};
@@ -82,7 +82,7 @@ bool find_connect_points(CoreRange corerange1, CoreRange corerange2, vector<Core
         connect_points.push_back(coreloc1);
         connect_points.push_back(coreloc2);
 
-        // if (up_loc == down_loc ) return true; // only connect via one Noc
+        if (up_loc == down_loc ) return true; // only connect via one Noc
 
         CoreLoc coreloc3 = {chip_id, down_loc, leftbound1};
         CoreLoc coreloc4 = {chip_id, down_loc, rightbound2};
@@ -101,7 +101,7 @@ bool find_connect_points(CoreRange corerange1, CoreRange corerange2, vector<Core
         connect_points.push_back(coreloc1);
         connect_points.push_back(coreloc2);
 
-        // if (up_loc == down_loc ) return true; // only connect via one Noc
+        if (up_loc == down_loc ) return true; // only connect via one Noc
 
         CoreLoc coreloc3 = {chip_id, down_loc, rightbound1};
         CoreLoc coreloc4 = {chip_id, down_loc, leftbound2};
@@ -111,6 +111,123 @@ bool find_connect_points(CoreRange corerange1, CoreRange corerange2, vector<Core
         return true;
     }
     // if none of the above conditions holds, there's no connection between 1 and 2
+    return false;
+}
+
+bool find_subconnect_points(CoreRange corerange1, CoreRange corerange2, vector<CoreLoc> &subconnect_points){
+    // cores on different chips don't have direct connection
+    if (corerange1.coreloc.chip_id != corerange2.coreloc.chip_id) return false;
+
+    int upbound1 = corerange1.coreloc.row_id;
+    int upbound2 = corerange2.coreloc.row_id;
+    int downbound1 = upbound1 + corerange1.rows - 1;
+    int downbound2 = upbound2 + corerange2.rows - 1;
+    int leftbound1 = corerange1.coreloc.col_id;
+    int leftbound2 = corerange2.coreloc.col_id;
+    int rightbound1 = leftbound1 + corerange1.cols - 1;
+    int rightbound2 = leftbound2 + corerange2.cols - 1;
+    int chip_id = corerange1.coreloc.chip_id; 
+
+    if (upbound2 - 1 > downbound1){
+        if (leftbound2 >= rightbound1) {
+            CoreLoc coreloc1 = {chip_id, downbound1, rightbound1};
+            CoreLoc coreloc2 = {chip_id, upbound2, leftbound2};
+            subconnect_points.push_back(coreloc1);
+            subconnect_points.push_back(coreloc2);
+        } else if (rightbound2 <= leftbound1){
+            CoreLoc coreloc1 = {chip_id, downbound1, leftbound1};
+            CoreLoc coreloc2 = {chip_id, upbound2, rightbound2};
+            subconnect_points.push_back(coreloc1);
+            subconnect_points.push_back(coreloc2);
+        } else {
+            int leftloc = max(leftbound1, leftbound2);
+            int rightloc = min(rightbound1, rightbound2);
+            CoreLoc coreloc1 = {chip_id, downbound1, leftloc};
+            CoreLoc coreloc2 = {chip_id, upbound2, leftloc};
+            CoreLoc coreloc3 = {chip_id, downbound1, rightloc};
+            CoreLoc coreloc4 = {chip_id, upbound2, rightloc};
+            subconnect_points.push_back(coreloc1);
+            subconnect_points.push_back(coreloc2);
+            subconnect_points.push_back(coreloc3);
+            subconnect_points.push_back(coreloc4);
+        } 
+        return true;
+    } 
+    if (downbound2 + 1 < upbound1){
+        if (leftbound2 >= rightbound1) {
+            CoreLoc coreloc1 = {chip_id, upbound1, rightbound1};
+            CoreLoc coreloc2 = {chip_id, downbound2, leftbound2};
+            subconnect_points.push_back(coreloc1);
+            subconnect_points.push_back(coreloc2);  
+        } else if (rightbound2 <= leftbound1){
+            CoreLoc coreloc1 = {chip_id, upbound1, leftbound1};
+            CoreLoc coreloc2 = {chip_id, downbound2, rightbound2};
+            subconnect_points.push_back(coreloc1);
+            subconnect_points.push_back(coreloc2);
+        } else {
+            int leftloc = max(leftbound1, leftbound2);
+            int rightloc = min(rightbound1, rightbound2);
+            CoreLoc coreloc1 = {chip_id, upbound1, leftloc};
+            CoreLoc coreloc2 = {chip_id, downbound2, leftloc};
+            CoreLoc coreloc3 = {chip_id, upbound1, rightloc};
+            CoreLoc coreloc4 = {chip_id, downbound2, rightloc};
+            subconnect_points.push_back(coreloc1);
+            subconnect_points.push_back(coreloc2);
+            subconnect_points.push_back(coreloc3);
+            subconnect_points.push_back(coreloc4);
+        } 
+        return true;
+    } 
+    if (leftbound2 - 1 > rightbound1){
+        if (upbound2 >= downbound1) {
+            CoreLoc coreloc1 = {chip_id, downbound1, rightbound1};
+            CoreLoc coreloc2 = {chip_id, upbound2, leftbound2};
+            subconnect_points.push_back(coreloc1);
+            subconnect_points.push_back(coreloc2);
+        } else if (downbound2 <= upbound1){
+            CoreLoc coreloc1 = {chip_id, upbound1, rightbound1};
+            CoreLoc coreloc2 = {chip_id, downbound2, leftbound2};
+            subconnect_points.push_back(coreloc1);
+            subconnect_points.push_back(coreloc2);
+        } else {
+            int uploc = max(upbound1, upbound2);
+            int downloc = min(downbound1, downbound2);
+            CoreLoc coreloc1 = {chip_id, uploc, rightbound1};
+            CoreLoc coreloc2 = {chip_id, uploc, leftbound2};
+            CoreLoc coreloc3 = {chip_id, downloc, rightbound1};
+            CoreLoc coreloc4 = {chip_id, downloc, leftbound2};
+            subconnect_points.push_back(coreloc1);
+            subconnect_points.push_back(coreloc2);
+            subconnect_points.push_back(coreloc3);
+            subconnect_points.push_back(coreloc4);
+        } 
+        return true;       
+    }
+    if (rightbound2 + 1 < leftbound1){
+        if (upbound2 >= downbound1) {
+            CoreLoc coreloc1 = {chip_id, downbound1, leftbound1};
+            CoreLoc coreloc2 = {chip_id, upbound2, rightbound2};
+            subconnect_points.push_back(coreloc1);
+            subconnect_points.push_back(coreloc2);
+        } else if (downbound2 <= upbound1){
+            CoreLoc coreloc1 = {chip_id, upbound1, leftbound1};
+            CoreLoc coreloc2 = {chip_id, downbound2, rightbound2};
+            subconnect_points.push_back(coreloc1);
+            subconnect_points.push_back(coreloc2);
+        } else {
+            int uploc = max(upbound1, upbound2);
+            int downloc = min(downbound1, downbound2);
+            CoreLoc coreloc1 = {chip_id, uploc, leftbound1};
+            CoreLoc coreloc2 = {chip_id, uploc, rightbound2};
+            CoreLoc coreloc3 = {chip_id, downloc, leftbound1};
+            CoreLoc coreloc4 = {chip_id, downloc, rightbound2};
+            subconnect_points.push_back(coreloc1);
+            subconnect_points.push_back(coreloc2);
+            subconnect_points.push_back(coreloc3);
+            subconnect_points.push_back(coreloc4);
+        } 
+        return true;       
+    }
     return false;
 }
 
@@ -237,3 +354,4 @@ int core_line_dist(CoreLoc core, CoreLoc line_start, CoreLoc line_end, CoreLoc &
     } else return -1;
     return dist;
 }
+

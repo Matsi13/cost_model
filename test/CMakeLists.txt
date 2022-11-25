@@ -17,3 +17,7 @@ add_test(NAME core_dist_test COMMAND core_dist_test)
 add_executable(get_forward_input_test get_forward_input_test.cpp)
 target_link_libraries(get_forward_input_test total_lib)
 add_test(NAME get_forward_input_test COMMAND get_forward_input_test)
+
+add_executable(subconnect_test subconnect_test.cpp)
+target_link_libraries(subconnect_test total_lib)
+add_test(NAME subconnect_test COMMAND subconnect_test)

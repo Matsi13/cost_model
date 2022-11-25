@@ -20,7 +20,7 @@ public :
     float BW_net;          // bandwidth of Ethernet
 
     vector<CoreLoc> DRAM_locs;       // start1, end1, start2, end2, ……
-    vector<float> DRAM_sizes;        // size of each DRAM, measured in Byt
+    vector<float> DRAM_sizes;        // size of each DRAM, measured in Byte
     float BW_DRAM;          // bandwidth of each port
 
     int num_core_row;       // number of core rows
