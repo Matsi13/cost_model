@@ -55,10 +55,14 @@ ChipBasic::ChipBasic(){
 
 float ChipBasic::non_linear_func_time(string func_name){
     if (func_name == "ReLU") return 1;
+    if (func_name == "sigmoid") return 3;
+    if (func_name == "tanh") return 5;
     else return 2;
 }
 
 float ChipBasic::non_linear_func_back_time(string func_name){
     if (func_name == "ReLU") return 1;
+    if (func_name == "sigmoid") return 4;
+    if (func_name == "tanh") return 5;
     else return 2;
 }

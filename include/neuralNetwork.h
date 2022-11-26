@@ -13,7 +13,7 @@ public :
 
     int insert_layer(PhysicalLayer newlayer);
 
-
+    // functions for matrix multiply
     float forward_input_time(int i); // layer i's time of getting forward input
     float forward_compute_time(int i); // layer i's independent calculation time
     float forward_reduce_time(int i);
@@ -28,6 +28,13 @@ public :
     float backward_compute_time(int i);
     float backward_reduce_time(int i);
     float backward_weight_sync_time(int in_idx, int out_idx);
+
+    // functions for dot product
+    float forward_dot_input_time(int in_idx, int out_idx);
+    float forward_dot_compute_time(int i);
+    float backward_dot_input_time(int in_idx, int out_idx);
+    float backward_dot_compute_time(int i);
+    
 };
 
 

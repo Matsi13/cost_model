@@ -31,9 +31,9 @@ float NeuralNetwork::forward_input_time(int i){
         CoreLoc input_core_loc = input_layer.cores.coreloc;
 
         // size of input data and rcv data
-        int input_total_size = input_layer.weight_size_row;
-        float input_shard_size = input_layer.is_trans ? ceil(input_layer.weight_size_row/input_layer.cores.cols) : ceil(input_layer.weight_size_row/input_layer.cores.rows); 
-        float rcv_shard_size = rcv_layer.is_trans ? ceil(rcv_layer.weight_size_col/rcv_layer.cores.rows) : ceil(rcv_layer.weight_size_col/rcv_layer.cores.cols);
+        // int input_total_size = input_layer.weight_size_row;
+        int input_shard_size = input_layer.is_trans ? ceil(input_layer.weight_size_row/input_layer.cores.cols) : ceil(input_layer.weight_size_row/input_layer.cores.rows); 
+        int rcv_shard_size = rcv_layer.is_trans ? ceil(rcv_layer.weight_size_col/rcv_layer.cores.rows) : ceil(rcv_layer.weight_size_col/rcv_layer.cores.cols);
         // find vertice of each layer
         bool rows_split1 = !input_layer.is_trans;
         bool rows_split2 = rcv_layer.is_trans;
@@ -145,21 +145,21 @@ float NeuralNetwork::forward_input_time(int i){
             for (int i = 0; i < 2; i++){
                 int temp_dist_input_rcv, temp_dist_input, temp_dist_rcv;
 
-                int dist_input_rcv_outer = input_dists[i] + core_dist(input_pedals[i], rcv_pedals[i]) + rcv_dists[i];
+                int dist_input_rcv_outer = input_dists[i] * input_shard_size + (core_dist(input_pedals[i], rcv_pedals[i]) + rcv_dists[i]) * min(input_shard_size, rcv_shard_size);
                 temp_dist_input_rcv = dist_input_rcv_outer;
                 temp_dist_input = input_dists[i];
                 temp_dist_rcv = core_dist(input_pedals[i], rcv_pedals[i]) + rcv_dists[i];
 
                 int dist_input_rcv_inner;
                 if (input_dists.size() > 2) {
-                    dist_input_rcv_inner = input_dists[i + 2] + core_dist(input_pedals[i + 2], rcv_pedals[i]) + rcv_dists[i];
+                    dist_input_rcv_inner = input_dists[i + 2] * input_shard_size + (core_dist(input_pedals[i + 2], rcv_pedals[i]) + rcv_dists[i]) * min(input_shard_size, rcv_shard_size);
                     if (dist_input_rcv_inner > dist_input_rcv_outer){
                         temp_dist_input_rcv = dist_input_rcv_inner;
                         temp_dist_input = input_dists[i + 2];
                         temp_dist_rcv = core_dist(input_pedals[i + 2], rcv_pedals[i]) + rcv_dists[i];
                     }               
                 } else if(rcv_dists.size() > 2){
-                    dist_input_rcv_inner = input_dists[i] + core_dist(input_pedals[i], rcv_pedals[i + 2]) + rcv_dists[i + 2];
+                    dist_input_rcv_inner = input_dists[i] * input_shard_size + (core_dist(input_pedals[i], rcv_pedals[i + 2]) + rcv_dists[i + 2]) * min(input_shard_size, rcv_shard_size);
                     if (dist_input_rcv_inner > dist_input_rcv_outer){
                         temp_dist_input_rcv = dist_input_rcv_inner;
                         temp_dist_input = input_dists[i];
@@ -681,3 +681,197 @@ float NeuralNetwork::backward_weight_sync_time(int in_idx, int out_idx){
     
     float temp_transfer_time = ( input_max_dist * input_shard_size + output_max_dist * min(input_shard_size, output_shard_size)) * output_layer.mem_byte_wid / device.BW_NoC;
 }
+
+float NeuralNetwork::forward_dot_input_time(int in_idx, int out_idx){
+    PhysicalLayer input_layer = layers[in_idx];
+    PhysicalLayer output_layer = layers[out_idx];
+    CoreLoc input_core_loc = input_layer.cores.coreloc;
+    CoreLoc output_core_loc = output_layer.cores.coreloc;
+
+    // size of input data and rcv data
+    // int input_total_size = input_layer.weight_size_row;
+    int input_shard_size = input_layer.is_trans ? ceil(input_layer.weight_size_row/input_layer.cores.cols) : ceil(input_layer.weight_size_row/input_layer.cores.rows); 
+    int output_shard_size = output_layer.is_trans ? ceil(output_layer.weight_size_row/output_layer.cores.cols) : ceil(output_layer.weight_size_row/output_layer.cores.rows);
+    // whether the vector is split by row 
+    bool rows_split1 = !input_layer.is_trans;
+    bool rows_split2 = !output_layer.is_trans;
+
+    vector<CoreLoc> input_layer_vertice, output_layer_vertice;
+    find_vertice(input_layer.cores, output_layer.cores, rows_split1, rows_split2, input_layer_vertice, output_layer_vertice);
+
+    int dist_input , dist_output, dist_input_output = 0;
+    float transfer_time;
+    // communicate accross chips
+    if (input_core_loc.chip_id != output_core_loc.chip_id) { 
+        vector<int> input_dists, output_dists;
+        // find the shortest distance from input to network port 
+        for (int i = 0; i < input_layer_vertice.size() - 1; i += 2){
+            int dist1, dist2;
+            dist1 = core_dist(input_layer_vertice[i], device.net_port_loc);
+            dist2 = core_dist(input_layer_vertice[i + 1], device.net_port_loc);
+            input_dists.push_back(min(dist1, dist2));
+            
+        }  
+        // find the longest distance from output to network port
+        for (int i = 0; i < output_layer_vertice.size() - 1; i += 2){
+            CoreLoc pedal1, pedal2;
+            int dist1, dist2;
+            dist1 = core_dist(output_layer_vertice[i], device.net_port_loc);
+            dist2 = core_dist(output_layer_vertice[i + 1], device.net_port_loc);
+            input_dists.push_back(min(dist1, dist2));
+        }     
+        // find the longest distance
+        for (int i = 0; i < 2; i++){
+            int temp_dist_input_output, temp_dist_input, temp_dist_output;
+
+            int dist_input_output_outer = input_dists[i] * input_shard_size + output_dists[i] * min(input_shard_size, output_shard_size);
+            temp_dist_input_output = dist_input_output_outer;
+            temp_dist_input = input_dists[i];
+            temp_dist_output = output_dists[i];
+
+            int dist_input_output_inner;
+            if (input_dists.size() > 2) {
+                dist_input_output_inner = input_dists[i + 2] * input_shard_size + output_dists[i] * min(input_shard_size, output_shard_size);
+                if (dist_input_output_inner > dist_input_output_outer){
+                    temp_dist_input_output = dist_input_output_inner;
+                    temp_dist_input = input_dists[i + 2];
+                    temp_dist_output = output_dists[i];
+                }               
+            } else if(output_dists.size() > 2){
+                dist_input_output_inner = input_dists[i] * input_shard_size + output_dists[i + 2] * min(input_shard_size, output_shard_size);
+                if (dist_input_output_inner > dist_input_output_outer){
+                    temp_dist_input_output = dist_input_output_inner;
+                    temp_dist_input = input_dists[i];
+                    temp_dist_output =  output_dists[i + 2];
+                }       
+            }
+            if (temp_dist_input_output > dist_input_output) {
+                dist_input_output = temp_dist_input_output;
+                dist_input = temp_dist_input;
+                dist_output = temp_dist_output;   
+            }
+        } 
+        transfer_time = ( dist_input * input_shard_size + dist_output * min(input_shard_size, output_shard_size)) * output_layer.mem_byte_wid / min(device.BW_NoC, device.BW_net) ;
+    } else {
+        // find connect points
+        vector<CoreLoc> connect_points;
+        bool is_connected = find_connect_points(input_layer.cores, output_layer.cores, connect_points);
+        if (!is_connected) find_subconnect_points(input_layer.cores, output_layer.cores, connect_points);    
+        if (connect_points.size() < 4){
+            connect_points.push_back(connect_points[0]);
+            connect_points.push_back(connect_points[1]);
+        }
+        // CoreLoc input_start_outer_pedal, input_end_outer_pedal, input_start_inner_pedal, input_end_inner_pedal, rcv_start_outer_pedal, rcv_end_outer_pedal, rcv_start_inner_pedal, rcv_end_inner_pedal;
+        vector<CoreLoc> input_pedals;
+        vector<CoreLoc> output_pedals;
+        // int input_start_outer_dist, input_end_outer_dist,  input_start_inner_dist,input_end_inner_dist, rcv_start_outer_dist, rcv_end_outer_dist, rcv_start_inner_dist, rcv_end_inner_dist;
+        vector<int> input_dists;
+        vector<int> output_dists;
+        // 3. calculate the 2/4 shortest distances from input to connection points       
+        for (int i = 0; i < input_layer_vertice.size() - 1; i += 2){
+            CoreLoc pedal1, pedal2;
+            int dist1, dist2;
+            dist1 = core_line_dist(input_layer_vertice[i], connect_points[0], connect_points[2], pedal1);
+            dist2 = core_line_dist(input_layer_vertice[i + 1], connect_points[0], connect_points[2], pedal2);
+            if (dist1 > dist2){
+                input_pedals.push_back(pedal2);
+                input_dists.push_back(dist2);
+            } else{
+                input_pedals.push_back(pedal1);
+                input_dists.push_back(dist1);
+            }
+        }
+        // 4. calculate the 2/4 longest distances from connection points to receiver 
+        for (int i = 0; i < output_layer_vertice.size() - 1; i += 2){
+            CoreLoc pedal1, pedal2;
+            int dist1, dist2;
+            dist1 = core_line_dist(output_layer_vertice[i], connect_points[1], connect_points[3], pedal1);
+            dist2 = core_line_dist(output_layer_vertice[i + 1], connect_points[1], connect_points[3], pedal2);
+            if (dist1 > dist2){
+                output_pedals.push_back(pedal1);
+                output_dists.push_back(dist1);
+            } else{
+                output_pedals.push_back(pedal2);
+                output_dists.push_back(dist2);
+            }
+        }
+        
+        // 5. calculate distances between pairs. The longest path = min(dist(input, connect)) + max(dist(connect, rcv)). It seems that we don't need to mark which pair generate the longest distance. We only need to get the longest distance       
+        for (int i = 0; i < 2; i++){
+            int temp_dist_input_output, temp_dist_input, temp_dist_output;
+
+            int dist_input_output_outer = input_dists[i] * input_shard_size + (core_dist(input_pedals[i], output_pedals[i]) + output_dists[i]) * min(input_shard_size, output_shard_size);
+            temp_dist_input_output = dist_input_output_outer;
+            temp_dist_input = input_dists[i];
+            temp_dist_output = core_dist(input_pedals[i], output_pedals[i]) + output_dists[i];
+
+            int dist_input_output_inner;
+            if (input_dists.size() > 2) {
+                dist_input_output_inner = input_dists[i + 2] * input_shard_size + (core_dist(input_pedals[i + 2], output_pedals[i]) + output_dists[i]) * min(input_shard_size, output_shard_size);
+                if (dist_input_output_inner > dist_input_output_outer){
+                    temp_dist_input_output = dist_input_output_inner;
+                    temp_dist_input = input_dists[i + 2];
+                    temp_dist_output = core_dist(input_pedals[i + 2], output_pedals[i]) + output_dists[i];
+                }               
+            } else if(output_dists.size() > 2){
+                dist_input_output_inner = input_dists[i] * input_shard_size + (core_dist(input_pedals[i], output_pedals[i + 2]) + output_dists[i + 2])* min(input_shard_size, output_shard_size);
+                if (dist_input_output_inner > dist_input_output_outer){
+                    temp_dist_input_output = dist_input_output_inner;
+                    temp_dist_input = input_dists[i];
+                    temp_dist_output = core_dist(input_pedals[i], output_pedals[i + 2]) + output_dists[i + 2];
+                }       
+            }
+            
+             
+        transfer_time = ( dist_input * input_shard_size + dist_output * min(input_shard_size, output_shard_size)) * output_layer.mem_byte_wid / device.BW_NoC;
+        
+        }                      
+    }    
+    return transfer_time;   
+        
+            
+            
+}
+
+float NeuralNetwork::forward_dot_compute_time(int i){
+
+    int matrix_row_split = layers[i].is_trans ? layers[i].cores.cols : layers[i].cores.rows;
+    
+    int row_size = ceil(layers[i].weight_size_row / matrix_row_split);
+    float compute_flops = row_size;
+    float compute_power;
+    if (layers[i].cal_byte_wid == 1) compute_power = device.core_FLOPS_fp8;
+    else if (layers[i].cal_byte_wid == 2) compute_power = device.core_FLOPS_fp16;
+    else return -1;
+    return 2 * compute_flops/compute_power;  // take scale factor d_k into account0 
+}
+
+float NeuralNetwork::backward_dot_input_time(int in_idx, int out_idx){
+    return forward_dot_input_time(in_idx, out_idx);
+}
+
+float NeuralNetwork::backward_dot_compute_time(int i){
+
+    int matrix_row_split = layers[i].is_trans ? layers[i].cores.cols : layers[i].cores.rows;
+    
+    int row_size = ceil(layers[i].weight_size_row / matrix_row_split);
+    float compute_flops = row_size;
+    float compute_power;
+    if (layers[i].cal_byte_wid == 1) compute_power = device.core_FLOPS_fp8;
+    else if (layers[i].cal_byte_wid == 2) compute_power = device.core_FLOPS_fp16;
+    else return -1;
+    return 2 * compute_flops/compute_power;  // take scale factor d_k into account0 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
