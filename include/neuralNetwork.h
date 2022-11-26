@@ -35,6 +35,9 @@ public :
     float backward_dot_input_time(int in_idx, int out_idx);
     float backward_dot_compute_time(int i);
     
+    // functions for softmax
+    float forward_softmax_reduce_time(int i);
+    float backward_softmax_compute_time(int i);
 };
 
 

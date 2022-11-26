@@ -212,7 +212,7 @@ float NeuralNetwork::forward_reduce_time(int i){
 
     float compute_flops = (matrix_col_split - 1) * row_size;
     float compute_time = compute_flops/compute_power;
-    float communicate_time = (matrix_col_split - 1) * row_size / device.BW_NoC;
+    float communicate_time = (matrix_col_split - 1) * row_size * layers[i].mem_byte_wid/ device.BW_NoC;
 
     return max(communicate_time, compute_time);
     
@@ -627,7 +627,7 @@ float NeuralNetwork::backward_reduce_time(int i){
 
     float compute_flops = (matrix_row_split - 1) * col_size;
     float compute_time = compute_flops/compute_power;
-    float communicate_time = (matrix_row_split - 1) * col_size / device.BW_NoC;
+    float communicate_time = (matrix_row_split - 1) * col_size * layers[i].mem_byte_wid/ device.BW_NoC;
 
     return max(communicate_time, compute_time);
 }
@@ -838,12 +838,12 @@ float NeuralNetwork::forward_dot_compute_time(int i){
     int matrix_row_split = layers[i].is_trans ? layers[i].cores.cols : layers[i].cores.rows;
     
     int row_size = ceil(layers[i].weight_size_row / matrix_row_split);
-    float compute_flops = row_size;
+    float compute_flops = 2 * row_size;
     float compute_power;
     if (layers[i].cal_byte_wid == 1) compute_power = device.core_FLOPS_fp8;
     else if (layers[i].cal_byte_wid == 2) compute_power = device.core_FLOPS_fp16;
     else return -1;
-    return 2 * compute_flops/compute_power;  // take scale factor d_k into account0 
+    return compute_flops/compute_power;  // take scale factor d_k into account0 
 }
 
 float NeuralNetwork::backward_dot_input_time(int in_idx, int out_idx){
@@ -855,15 +855,39 @@ float NeuralNetwork::backward_dot_compute_time(int i){
     int matrix_row_split = layers[i].is_trans ? layers[i].cores.cols : layers[i].cores.rows;
     
     int row_size = ceil(layers[i].weight_size_row / matrix_row_split);
-    float compute_flops = row_size;
+    float compute_flops = 2 * row_size;
     float compute_power;
     if (layers[i].cal_byte_wid == 1) compute_power = device.core_FLOPS_fp8;
     else if (layers[i].cal_byte_wid == 2) compute_power = device.core_FLOPS_fp16;
     else return -1;
-    return 2 * compute_flops/compute_power;  // take scale factor d_k into account0 
+    return compute_flops/compute_power;  // take scale factor d_k into account0 
 }
 
+float NeuralNetwork::forward_softmax_reduce_time(int i){
+    int matrix_row_split = layers[i].is_trans ? layers[i].cores.cols : layers[i].cores.rows;
+    int row_size = ceil(layers[i].weight_size_row / matrix_row_split);
+    float compute_flops = 2 * layers[i].weight_size_row + row_size;
+    float compute_power;
+    if (layers[i].cal_byte_wid == 1) compute_power = device.core_FLOPS_fp8;
+    else if (layers[i].cal_byte_wid == 2) compute_power = device.core_FLOPS_fp16;
+    else return -1;
 
+    float compute_time = compute_flops / compute_power;
+    float communicate_time = (layers[i].weight_size_row - row_size) * layers[i].mem_byte_wid / device.BW_NoC;
+
+    return max(compute_time, communicate_time);  
+}
+
+float NeuralNetwork::backward_softmax_compute_time(int i){
+    int matrix_row_split = layers[i].is_trans ? layers[i].cores.cols : layers[i].cores.rows;
+    int row_size = ceil(layers[i].weight_size_row / matrix_row_split);
+    float compute_flops = 2 * row_size;
+    float compute_power;
+    if (layers[i].cal_byte_wid == 1) compute_power = device.core_FLOPS_fp8;
+    else if (layers[i].cal_byte_wid == 2) compute_power = device.core_FLOPS_fp16;
+    else return -1;
+    return compute_flops / compute_power; 
+}
 
 
 
